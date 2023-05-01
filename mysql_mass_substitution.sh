@@ -32,9 +32,11 @@ input(){
     echo "Enter new value or [Enter] to accept existing value:"
     read -r ans
     if [[ $ans != "" ]]; then
-      eval "$2=$ans"
+      eval "$2=\"$ans\""
+      echo "Value is set: $(eval "echo \$$2")"
       break
     elif [[ $ans == "" ]]; then
+      echo "Value is set: $(eval "echo \$$2")"
       break
     fi
   done
