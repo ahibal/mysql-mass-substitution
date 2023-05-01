@@ -68,7 +68,7 @@ Mass substitution of strings in mysql database using REPLACE statements.
     Done!
 
     Please review replace.sql using your editor and
-    earch for the changed strings to confirm that the
+    search for the changed strings to confirm that the
     substitutions are correct.
 
     If all is OK then you can apply changes to your database using the following command:
