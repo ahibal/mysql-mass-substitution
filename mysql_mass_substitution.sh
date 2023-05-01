@@ -80,7 +80,7 @@ proceed "I am ready to generate replace.sql file."
 
 echo
 echo "Generating replace.sql ..."
-cat initial.sql | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_reffering_to_capture_groups/gi" > replace.sql
+cat $backupfile | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_reffering_to_capture_groups/gi" > replace.sql
 
 echo "Done!"
 echo
