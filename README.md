@@ -1,27 +1,33 @@
 # mysql-mass-substitution.
+
 Mass substitution of strings in mysql database using REPLACE statements.
 
 ## Database user name.
+
 Current value is: forge
 Enter new value or [Enter] to accept existing value:
 
 
 ## Database name.
+
 Current value is: forge
 Enter new value or [Enter] to accept existing value:
 
 
 ## Database host ip.
+
 Current value is: 127.0.0.1
 Enter new value or [Enter] to accept existing value:
 
 
 ## Database user password.
+
 Current value is:
 Enter new value or [Enter] to accept existing value:
 
 
 ## Extended regex for what you are searching in the database (without capturing groups).
+
 For example \/[a-z-]+2023 will match
 /ghjg-gg-ere2023
 /hjh-ghg-2023
@@ -32,12 +38,14 @@ Enter new value or [Enter] to accept existing value:
 
 
 ## Exactly the same extended regex with or without capturing groups.
+
 For example (\/[a-z-]+)2023 will allow you to use (\/[a-z-]+) as \1 when defining the substitution (next step)
 Current value is: (\/[a-z-]+)2023
 Enter new value or [Enter] to accept existing value:
 
 
 ## The substitution string (using or not using capturing groups from previous step).
+
 For example \12024 if a match was
 ++++++---- (+ marks the capture group and - marks the rest of the match)
 \ghjg-2023
