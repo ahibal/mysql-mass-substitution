@@ -24,7 +24,7 @@ Mass substitution of strings in mysql database using REPLACE statements.
 
 ## Extended regex for what you are searching in the database (without capturing groups).
 
-    For example \/[a-z-]+2023 will match
+    For example a value of \/[a-z-]+2023 will match
     /ghjg-gg-ere2023
     /hjh-ghg-2023
     /hjhhjkh2023
@@ -34,16 +34,18 @@ Mass substitution of strings in mysql database using REPLACE statements.
 
 ## Exactly the same extended regex with or without capturing groups.
 
-    For example (\/[a-z-]+)2023 will allow you to use (\/[a-z-]+) as \1
+    For example a value of (\/[a-z-]+)2023 will allow you to use (\/[a-z-]+) as \1
     when defining the substitution (next step).
     Current value is: (\/[a-z-]+)2023
     Enter new value or [Enter] to accept existing value:
 
 ## The substitution string (using or not using capturing groups from previous step).
 
-    For example \12024 if a match was
+    For example a value of \12024 means that if a match was
+
     ++++++---- (+ marks the capture group and - marks the rest of the match)
     \ghjg-2023
+
     then the new string will be \ghjg-2024
     Current value is: \12024
     Enter new value or [Enter] to accept existing value:
