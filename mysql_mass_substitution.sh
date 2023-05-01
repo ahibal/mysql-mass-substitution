@@ -8,7 +8,7 @@ host="127.0.0.1"
 password=""
 exregex_without_capturing_groups="\/[a-z-]+2023"
 same_exregex_with_or_without_capturing_groups="(\/[a-z-]+)2023"
-new_string_referring_or_not_reffering_to_capture_groups="\12024"
+new_string_referring_or_not_referring_to_capture_groups="\12024"
 
 proceed(){
   while true; do
@@ -58,7 +58,7 @@ vars=(
   "password"
   "exregex_without_capturing_groups"
   "same_exregex_with_or_without_capturing_groups"
-  "new_string_referring_or_not_reffering_to_capture_groups"
+  "new_string_referring_or_not_referring_to_capture_groups"
 )
 
 for i in {0..6}; do
@@ -80,7 +80,7 @@ proceed "I am ready to generate replace.sql file."
 
 echo
 echo "Generating replace.sql ..."
-cat $backupfile | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_reffering_to_capture_groups/gi" > replace.sql
+cat $backupfile | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_referring_to_capture_groups/gi" > replace.sql
 
 echo "Done!"
 echo
