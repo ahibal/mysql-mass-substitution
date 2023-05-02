@@ -25,21 +25,25 @@ proceed(){
 }
 
 input(){
-  while true; do
-    echo
-    echo -e $1
-    echo "Current value is: $(eval "echo \$$2")"
-    echo "Enter new value or [Enter] to accept existing value:"
+  echo
+  echo -e $1
+  echo "Current value is: $(eval "echo \$$2")"
+  echo "Enter new value or [Enter] to accept existing value:"
+
+  if [[ $2 == "password" ]]; then
+    read -rs ans
+  else
     read -r ans
-    if [[ $ans != "" ]]; then
-      eval "$2=\"$ans\""
-      echo "Value is set: $(eval "echo \$$2")"
-      break
-    elif [[ $ans == "" ]]; then
-      echo "Value is set: $(eval "echo \$$2")"
-      break
-    fi
-  done
+  fi
+
+  if [[ $ans != "" ]]; then
+    eval "$2=\"$ans\""
+  fi
+  if [[ $2 == "password" ]]; then
+    echo "Password is set."
+  else
+    echo "Value is set: $(eval "echo \$$2")"
+  fi
 }
 
 prompts=(
