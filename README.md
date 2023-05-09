@@ -1,6 +1,6 @@
 # mysql_mass_substitution.sh
 
-Mass substitution of strings in mysql database using REPLACE statements.
+Mass substitution of strings in mysql database using REPLACE function.
 
 ## Database user name.
 
