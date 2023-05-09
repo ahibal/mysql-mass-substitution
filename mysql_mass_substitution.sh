@@ -71,26 +71,77 @@ for i in {0..6}; do
   input "${prompts[$i]}" "${vars[$i]}" 
 done 
 
-backupfile_with_semicolons="$(date +%F-%T).sql"
-backupfile=$(echo $backupfile_with_semicolons | sed "s/:/-/g")
+filtereddump="filtereddump.sql"
 
 echo
-echo "Creating backup file $backupfile ..."
-mysqldump -u $user --password="$password" --replace --no-create-info --no-tablespaces --extended-insert=FALSE -h $host $database | grep -iE "$exregex_without_capturing_groups" > $backupfile
+echo "Searching ..."
+mysqldump -u $user --password="$password" --complete-insert --skip-extended-insert --no-create-info --no-tablespaces  -h $host $database | grep -iE "$exregex_without_capturing_groups" > $filtereddump
 
 echo
 echo "Found:"
-cat $backupfile | grep -iEo $exregex_without_capturing_groups | sort | uniq
-
-proceed "I am ready to generate replace.sql file."
+cat $filtereddump | grep -iEo $exregex_without_capturing_groups | sort | uniq
 
 echo
-echo "Generating replace.sql ..."
-cat $backupfile | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_referring_to_capture_groups/gi" > replace.sql
+echo "Analyzing ..."
+declare -A table_column
+while read -r line; do
+  table_name=$(echo "$line" | sed -r "s/INSERT INTO \`(.*)\` \(.*/\1/")
+  columns=$(echo "$line" | sed -r "s/INSERT.*\((.*)\) VALUES.*/\1/" | sed -r "s/[\`,]//g" | sed -r "s/ /\n/g")
+  column_count=$(echo "$columns" | wc -l)
+  values=$(echo "$line" | sed -r "s/.*VALUES \((.*)\).*/\1/" | sed -r "s/','/'\n'/g" | sed -r "s/([0-9.NULL-]+),'/\1\n'/g" | sed -r "s/',([-0-9.NULL-]+)/'\n\1/g" | sed -r "s/NULL,/NULL\n/g" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/")
+  value_count=$(echo "$values" | wc -l)
+  if [[ $column_count != $value_count ]]; then
+    echo
+    echo "$table_name"
+    echo
+    echo "$column_count columns"
+    echo "$columns"
+    echo
+    echo "$value_count values"
+    echo "$values"
+    echo
+    echo "Cannot proceed. You must improve value parsing. Please imrove this script."
+    exit 1
+  fi
+  zerones=$(echo "$values" | awk "{IGNORE_CASE=1; print /$exregex_without_capturing_groups/ ? "1" : "0"}")
+  readarray -t columns_array <<< $(echo "$columns")
+  readarray -t values_array <<< $(echo "$values")
+  readarray -t zerones_array <<< $(echo "$zerones")
+  for ((coli=0 ; coli<$column_count ; coli++)); do
+    if [[ "${zerones_array[$coli]}" == "1" ]]; then
+      column_matches=$(echo "${values_array[$coli]}" | grep -ioE "$exregex_without_capturing_groups" | sort | uniq)
+      current_col_name="${columns_array[$coli]}"
+      new_to_put=$(echo "${table_column["$table_name:$current_col_name"]}"; echo "$column_matches")
+      table_column["$table_name:$current_col_name"]=$(echo "$new_to_put" | sed -r "/^$/d" | sort | uniq)
+    fi
+  done
+done <$filtereddump
+rm "$filtereddump"
 
+echo
+echo "Creating apply.sql and revert.sql ..."
+> temp.sql
+for key in "${!table_column[@]}"; do
+  table_name=$(echo "$key" | sed -r "s/:/\n/" | head -n 1)
+  column_name=$(echo "$key" | sed -r "s/:/\n/" | tail -n 1)
+  column_matches="${table_column["$key"]}"
+  column_replacements=$(echo "$column_matches" | sed -r "s/$same_exregex_with_or_without_capturing_groups/$new_string_referring_or_not_referring_to_capture_groups/gi")
+  readarray -t column_matches_array <<< $(echo "$column_matches")
+  readarray -t column_replacements_array <<< $(echo "$column_replacements")
+  count="${#column_matches_array[@]}"
+  for ((i=0 ; i<$count ; i++)); do
+    statement="UPDATE $table_name SET $column_name=REPLACE($column_name,'${column_matches_array[$i]}','${column_replacements_array[$i]}');"
+    echo "$statement" >> temp.sql
+  done
+done
+cat temp.sql | sort | uniq > apply.sql
+rm temp.sql
+cat apply.sql | sed -r "s/'(.*)','(.*)'/'\2','\1'/" > revert.sql
+
+echo
 echo "Done!"
 echo
-echo "Please review replace.sql using your editor, search for the changed strings to confirm that the substitutions are correct. If all is OK then you can apply changes to your database using the following command:"
-echo "mysql -u $user -p -h $host $database < replace.sql"
+echo "Please review apply.sql using your editor, search for the changed strings to confirm that the substitutions are correct. If all is OK then you can apply changes to your database using the following command:"
+echo "mysql -u $user -p -h $host $database < apply.sql"
 echo "If anything wrong you can always revert to initial state using the following command:"
-echo "mysql -u $user -p -h $host $database < $backupfile"
+echo "mysql -u $user -p -h $host $database < revert.sql"
