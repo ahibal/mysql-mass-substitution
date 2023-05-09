@@ -53,7 +53,7 @@ prompts=(
   "Database user password"
   "Extended regex for what you are searching in the database (without capturing groups).\nFor example [a-z-]+2023 will match\nghjg-gg-ere2023\nhjh-ghg-2023\nhjhhjkh2023\nand so on..."
   "Exactly the same extended regex with or without capturing groups.\nFor example ([a-z-]+)2023 will allow you to use ([a-z-]+) as \\1 when defining the substitution (next step)"
-  "The substitution string (using or not using capturing groups from previous step). For example \\12024 if a match was\n++++++----    (+ marks the capture group and - marks the rest of the match)\n\\ghjg-2023\nthen the new string will be \\ghjg-2024"
+  "The substitution string (using or not using capturing groups from previous step). For example \\12024 if a match was\n+++++----    (+ marks the capture group and - marks the rest of the match)\nghjg-2023\nthen the new string will be ghjg-2024"
 )
 
 
@@ -88,7 +88,7 @@ while read -r line; do
   table_name=$(echo "$line" | sed -r "s/INSERT INTO \`(.*)\` \(.*/\1/")
   columns=$(echo "$line" | sed -r "s/INSERT.*\((.*)\) VALUES.*/\1/" | sed -r "s/[\`,]//g" | sed -r "s/ /\n/g")
   column_count=$(echo "$columns" | wc -l)
-  values=$(echo "$line" | sed -r "s/.*VALUES \((.*)\).*/\1/" | sed -r "s/','/'\n'/g" | sed -r "s/([0-9.NULL-]+),'/\1\n'/g" | sed -r "s/',([-0-9.NULL-]+)/'\n\1/g" | sed -r "s/NULL,/NULL\n/g" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/")
+  values=$(echo "$line" | sed -r "s/.*VALUES \((.*)\).*/\1/" | sed -r "s/','/'\n'/g" | sed -r "s/,([0-9.NULL-]+),'/\n\1\n'/g" | sed -r "s/',([0-9.NULL-]+),/'\n\1\n/g" | sed -r "s/NULL,/NULL\n/g" | sed -r "s/,NULL/\nNULL/g" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/(^[0-9.-]+),/\1\n/" | sed -r "s/,([0-9.-]+)$/\n\1/")
   value_count=$(echo "$values" | wc -l)
   if [[ $column_count != $value_count ]]; then
     echo
@@ -99,6 +99,8 @@ while read -r line; do
     echo
     echo "$value_count values"
     echo "$values"
+    echo
+    echo "$line"
     echo
     echo "Cannot proceed. You must improve value parsing. Please imrove this script."
     exit 1
