@@ -6,8 +6,8 @@ user="forge"
 database="forge"
 host="127.0.0.1"
 password=""
-exregex_without_capturing_groups="\/[a-z-]+2023"
-same_exregex_with_or_without_capturing_groups="(\/[a-z-]+)2023"
+exregex_without_capturing_groups="[a-z-]+2023"
+same_exregex_with_or_without_capturing_groups="([a-z-]+)2023"
 new_string_referring_or_not_referring_to_capture_groups="\12024"
 
 proceed(){
@@ -51,8 +51,8 @@ prompts=(
   "Database name"
   "Database host ip"
   "Database user password"
-  "Extended regex for what you are searching in the database (without capturing groups).\nFor example \\/[a-z-]+2023 will match\n/ghjg-gg-ere2023\n/hjh-ghg-2023\n/hjhhjkh2023\nand so on..."
-  "Exactly the same extended regex with or without capturing groups.\nFor example (\\/[a-z-]+)2023 will allow you to use (\\/[a-z-]+) as \\1 when defining the substitution (next step)"
+  "Extended regex for what you are searching in the database (without capturing groups).\nFor example [a-z-]+2023 will match\nghjg-gg-ere2023\nhjh-ghg-2023\nhjhhjkh2023\nand so on..."
+  "Exactly the same extended regex with or without capturing groups.\nFor example ([a-z-]+)2023 will allow you to use ([a-z-]+) as \\1 when defining the substitution (next step)"
   "The substitution string (using or not using capturing groups from previous step). For example \\12024 if a match was\n++++++----    (+ marks the capture group and - marks the rest of the match)\n\\ghjg-2023\nthen the new string will be \\ghjg-2024"
 )
 
